@@ -1,7 +1,7 @@
-@import './var.css';
-@import 'element-plus/theme-chalk/dark/css-vars.css';
+@import "./var.css";
+@import "element-plus/theme-chalk/dark/css-vars.css";
 
-.reset-margin [class*='el-icon'] + span {
+.reset-margin [class*="el-icon"] + span {
   margin-left: 2px !important;
 }
 
@@ -31,5 +31,11 @@
   & .spinner-icon {
     border-top-color: var(--el-color-primary);
     border-left-color: var(--el-color-primary);
+  }
+}
+
+.el-form-item__content {
+  .el-select {
+    width: 100%;
   }
 }

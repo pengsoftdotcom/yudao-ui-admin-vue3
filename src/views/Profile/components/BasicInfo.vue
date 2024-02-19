@@ -48,6 +48,11 @@ const rules = reactive<FormRules>({
 })
 const schema = reactive<FormSchema[]>([
   {
+    field: 'name',
+    label: t('profile.user.name'),
+    component: 'Input'
+  },
+  {
     field: 'nickname',
     label: t('profile.user.nickname'),
     component: 'Input'

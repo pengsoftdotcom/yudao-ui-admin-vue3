@@ -395,7 +395,8 @@ export default {
   profile: {
     user: {
       title: 'Personal Information',
-      username: 'User Name',
+      username: 'Username',
+      name: 'Name',
       nickname: 'Nick Name',
       mobile: 'Phone Number',
       email: 'User Mail',

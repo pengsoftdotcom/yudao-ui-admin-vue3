@@ -10,6 +10,11 @@
         <div class="pull-right">{{ userInfo?.username }}</div>
       </li>
       <li class="list-group-item">
+        <Icon class="mr-5px" icon="ep:user-filled" />
+        {{ t('profile.user.name') }}
+        <div class="pull-right">{{ userInfo?.name }}</div>
+      </li>
+      <li class="list-group-item">
         <Icon class="mr-5px" icon="ep:phone" />
         {{ t('profile.user.mobile') }}
         <div class="pull-right">{{ userInfo?.mobile }}</div>
@@ -95,5 +100,9 @@ onMounted(async () => {
 
 .pull-right {
   float: right !important;
+}
+
+.mr-5px {
+  vertical-align: sub;
 }
 </style>

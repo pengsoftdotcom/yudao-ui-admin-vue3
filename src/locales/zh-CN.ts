@@ -389,6 +389,7 @@ export default {
     user: {
       title: '个人信息',
       username: '用户名称',
+      name: '用户姓名',
       nickname: '用户昵称',
       mobile: '手机号码',
       email: '用户邮箱',
