@@ -30,7 +30,7 @@
         </el-radio-group>
       </el-form-item>
       <!-- TODO @puhui999：同时添加至,还没想好下次搞 -->
-      <el-form-item v-if="formType === 'create'" label="同时添加至" prop="toBizType">
+      <el-form-item v-if="false && formType === 'create'" label="同时添加至" prop="toBizType">
         <el-select v-model="formData.userId">
           <el-option :value="1" label="联系人" />
           <el-option :value="1" label="商机" />
@@ -129,7 +129,6 @@ const resetForm = (bizType: number, bizId: number) => {
 }
 onMounted(async () => {
   // 获得用户列表
-  // TODO 芋艿：用户列表的选择组件
   userOptions.value = await UserApi.getSimpleUserList()
 })
 </script>

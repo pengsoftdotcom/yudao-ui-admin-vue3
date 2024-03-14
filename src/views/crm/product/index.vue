@@ -1,4 +1,6 @@
 <template>
+  <doc-alert title="【产品】产品管理、产品分类" url="https://doc.iocoder.cn/crm/product/" />
+
   <ContentWrap>
     <!-- 搜索工作栏 -->
     <el-form
@@ -68,7 +70,7 @@
         label="价格（元）"
         align="center"
         prop="price"
-        :formatter="fenToYuanFormat"
+        :formatter="erpPriceTableColumnFormatter"
         width="100"
       />
       <el-table-column label="产品描述" align="center" prop="description" width="150" />
@@ -133,7 +135,7 @@ import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
 import * as ProductApi from '@/api/crm/product'
 import ProductForm from './ProductForm.vue'
-import { fenToYuanFormat } from '@/utils/formatter'
+import { erpPriceTableColumnFormatter } from '@/utils'
 
 defineOptions({ name: 'CrmProduct' })
 

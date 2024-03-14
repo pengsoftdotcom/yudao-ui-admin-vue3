@@ -1,4 +1,7 @@
 <template>
+  <doc-alert title="【客户】客户管理、公海客户" url="https://doc.iocoder.cn/crm/customer/" />
+  <doc-alert title="【通用】数据权限" url="https://doc.iocoder.cn/crm/permission/" />
+
   <ContentWrap>
     <!-- 搜索工作栏 -->
     <el-form
@@ -53,15 +56,6 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="QQ" prop="qq">
-        <el-input
-          v-model="queryParams.qq"
-          class="!w-240px"
-          clearable
-          placeholder="请输入QQ"
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="微信" prop="wechat">
         <el-input
           v-model="queryParams.wechat"
@@ -109,8 +103,13 @@
 
   <!-- 列表 -->
   <ContentWrap>
+    <el-tabs v-model="activeName" @tab-click="handleTabClick">
+      <el-tab-pane label="我负责的" name="1" />
+      <el-tab-pane label="我参与的" name="2" />
+      <el-tab-pane label="下属负责的" name="3" />
+    </el-tabs>
     <el-table v-loading="loading" :data="list" :show-overflow-tooltip="true" :stripe="true">
-      <el-table-column align="center" fixed="left" label="姓名" prop="name" width="140">
+      <el-table-column align="center" fixed="left" label="联系人姓名" prop="name" width="160">
         <template #default="scope">
           <el-link :underline="false" type="primary" @click="openDetail(scope.row.id)">
             {{ scope.row.name }}
@@ -129,10 +128,23 @@
         </template>
       </el-table-column>
       <el-table-column align="center" label="手机" prop="mobile" width="120" />
-      <el-table-column align="center" label="电话" prop="telephone" width="120" />
-      <el-table-column align="center" label="邮箱" prop="email" width="120" />
+      <el-table-column align="center" label="电话" prop="telephone" width="130" />
+      <el-table-column align="center" label="邮箱" prop="email" width="180" />
       <el-table-column align="center" label="职位" prop="post" width="120" />
       <el-table-column align="center" label="地址" prop="detailAddress" width="120" />
+      <el-table-column align="center" label="关键决策人" prop="master" width="100">
+        <template #default="scope">
+          <dict-tag :type="DICT_TYPE.INFRA_BOOLEAN_STRING" :value="scope.row.master" />
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="直属上级" prop="parentName" width="160">
+        <template #default="scope">
+          <el-link :underline="false" type="primary" @click="openDetail(scope.row.parentId)">
+            {{ scope.row.parentName }}
+          </el-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="地址" align="center" prop="detailAddress" width="180" />
       <el-table-column
         :formatter="dateFormatter"
         align="center"
@@ -140,13 +152,12 @@
         prop="contactNextTime"
         width="180px"
       />
-      <el-table-column align="center" label="备注" prop="remark" />
-      <el-table-column align="center" label="关键决策人" prop="master" width="100">
+      <el-table-column align="center" label="性别" prop="sex">
         <template #default="scope">
-          <dict-tag :type="DICT_TYPE.INFRA_BOOLEAN_STRING" :value="scope.row.master" />
+          <dict-tag :type="DICT_TYPE.SYSTEM_USER_SEX" :value="scope.row.sex" />
         </template>
       </el-table-column>
-      <el-table-column align="center" label="直属上级" prop="parentName" width="140" />
+      <el-table-column align="center" label="备注" prop="remark" />
       <el-table-column
         :formatter="dateFormatter"
         align="center"
@@ -154,13 +165,8 @@
         prop="contactLastTime"
         width="180px"
       />
-      <el-table-column align="center" label="性别" prop="sex">
-        <template #default="scope">
-          <dict-tag :type="DICT_TYPE.SYSTEM_USER_SEX" :value="scope.row.sex" />
-        </template>
-      </el-table-column>
       <el-table-column align="center" label="负责人" prop="ownerUserName" width="120" />
-      <el-table-column align="center" label="创建人" prop="creatorName" width="120" />
+      <el-table-column align="center" label="所属部门" prop="ownerUserDeptName" width="100" />
       <el-table-column
         :formatter="dateFormatter"
         align="center"
@@ -175,6 +181,7 @@
         prop="createTime"
         width="180px"
       />
+      <el-table-column align="center" label="创建人" prop="creatorName" width="120" />
       <el-table-column align="center" fixed="right" label="操作" width="200">
         <template #default="scope">
           <el-button
@@ -216,6 +223,7 @@ import * as ContactApi from '@/api/crm/contact'
 import ContactForm from './ContactForm.vue'
 import { DICT_TYPE } from '@/utils/dict'
 import * as CustomerApi from '@/api/crm/customer'
+import { TabsPaneContext } from 'element-plus'
 
 defineOptions({ name: 'CrmContact' })
 
@@ -225,20 +233,21 @@ const { t } = useI18n() // 国际化
 const loading = ref(true) // 列表的加载中
 const total = ref(0) // 列表的总页数
 const list = ref([]) // 列表的数据
-const customerList = ref<CustomerApi.CustomerVO[]>([]) // 客户列表
 const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,
+  sceneType: '1', // 默认和 activeName 相等
   mobile: undefined,
   telephone: undefined,
   email: undefined,
   customerId: undefined,
   name: undefined,
-  qq: undefined,
   wechat: undefined
 })
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中
+const activeName = ref('1') // 列表 tab
+const customerList = ref<CustomerApi.CustomerVO[]>([]) // 客户列表
 
 /** 查询列表 */
 const getList = async () => {
@@ -261,6 +270,12 @@ const handleQuery = () => {
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryFormRef.value.resetFields()
+  handleQuery()
+}
+
+/** tab 切换 */
+const handleTabClick = (tab: TabsPaneContext) => {
+  queryParams.sceneType = tab.paneName
   handleQuery()
 }
 
@@ -312,6 +327,6 @@ const openCustomerDetail = (id: number) => {
 /** 初始化 **/
 onMounted(async () => {
   await getList()
-  customerList.value = await CustomerApi.getSimpleCustomerList()
+  customerList.value = await CustomerApi.getCustomerSimpleList()
 })
 </script>

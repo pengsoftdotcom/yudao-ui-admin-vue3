@@ -1,4 +1,6 @@
 <template>
+  <doc-alert title="【产品】产品管理、产品分类" url="https://doc.iocoder.cn/crm/product/" />
+
   <ContentWrap>
     <!-- 搜索工作栏 -->
     <el-form
@@ -73,7 +75,7 @@
 
 <script setup lang="ts">
 import { dateFormatter } from '@/utils/formatTime'
-import * as ProductCategoryApi from '@/api/crm/product/productCategory'
+import * as ProductCategoryApi from '@/api/crm/product/category'
 import ProductCategoryForm from './ProductCategoryForm.vue'
 import { handleTree } from '@/utils/tree'
 

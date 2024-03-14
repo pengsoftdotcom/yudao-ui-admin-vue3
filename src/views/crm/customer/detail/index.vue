@@ -11,7 +11,9 @@
     <el-button v-if="permissionListRef?.validateOwnerUser" type="primary" @click="transfer">
       转移
     </el-button>
-    <el-button v-if="permissionListRef?.validateWrite">更改成交状态</el-button>
+    <el-button v-if="permissionListRef?.validateWrite" @click="handleUpdateDealStatus">
+      更改成交状态
+    </el-button>
     <el-button
       v-if="customer.lockStatus && permissionListRef?.validateOwnerUser"
       @click="handleUnlock"
@@ -24,14 +26,15 @@
     >
       锁定
     </el-button>
-    <el-button v-if="!customer.ownerUserId" type="primary" @click="handleReceive">
-      领取客户
+    <el-button v-if="!customer.ownerUserId" type="primary" @click="handleReceive"> 领取</el-button>
+    <el-button v-if="!customer.ownerUserId" type="primary" @click="handleDistributeForm">
+      分配
     </el-button>
     <el-button
       v-if="customer.ownerUserId && permissionListRef?.validateOwnerUser"
       @click="handlePutPool"
     >
-      客户放入公海
+      放入公海
     </el-button>
   </CustomerDetailsHeader>
   <el-col>
@@ -61,19 +64,19 @@
         <ContractList :biz-id="customer.id!" :biz-type="BizTypeEnum.CRM_CUSTOMER" />
       </el-tab-pane>
       <el-tab-pane label="回款" lazy>
-        <ReceivablePlanList :biz-id="customer.id!" :biz-type="BizTypeEnum.CRM_CUSTOMER" />
-        <ReceivableList :biz-id="customer.id!" :biz-type="BizTypeEnum.CRM_CUSTOMER" />
+        <ReceivablePlanList :customer-id="customer.id!" @create-receivable="createReceivable" />
+        <ReceivableList ref="receivableListRef" :customer-id="customer.id!" />
       </el-tab-pane>
       <el-tab-pane label="操作日志">
         <OperateLogV2 :log-list="logList" />
       </el-tab-pane>
-      <el-tab-pane label="回访" lazy>TODO 待开发</el-tab-pane>
     </el-tabs>
   </el-col>
 
   <!-- 表单弹窗：添加/修改 -->
   <CustomerForm ref="formRef" @success="getCustomer" />
-  <CrmTransferForm ref="crmTransferFormRef" @success="close" />
+  <CustomerDistributeForm ref="distributeForm" @success="getCustomer" />
+  <CrmTransferForm ref="transferFormRef" @success="getCustomer" />
 </template>
 <script lang="ts" setup>
 import { useTagsViewStore } from '@/store/modules/tagsView'
@@ -92,6 +95,7 @@ import FollowUpList from '@/views/crm/followup/index.vue'
 import { BizTypeEnum } from '@/api/crm/permission'
 import type { OperateLogV2VO } from '@/api/system/operatelog'
 import { getOperateLogPage } from '@/api/crm/operateLog'
+import CustomerDistributeForm from '@/views/crm/customer/pool/CustomerDistributeForm.vue'
 
 defineOptions({ name: 'CrmCustomerDetail' })
 
@@ -99,7 +103,7 @@ const customerId = ref(0) // 客户编号
 const loading = ref(true) // 加载中
 const message = useMessage() // 消息弹窗
 const { delView } = useTagsViewStore() // 视图操作
-const { currentRoute } = useRouter() // 路由
+const { push, currentRoute } = useRouter() // 路由
 
 const permissionListRef = ref<InstanceType<typeof PermissionList>>() // 团队成员列表 Ref
 
@@ -121,10 +125,24 @@ const openForm = () => {
   formRef.value?.open('update', customerId.value)
 }
 
+/** 更新成交状态操作 */
+const handleUpdateDealStatus = async () => {
+  const dealStatus = !customer.value.dealStatus
+  try {
+    // 更新状态的二次确认
+    await message.confirm(`确定更新成交状态为【${dealStatus ? '已成交' : '未成交'}】吗？`)
+    // 发起更新
+    await CustomerApi.updateCustomerDealStatus(customerId.value, dealStatus)
+    message.success(`更新成交状态成功`)
+    // 刷新数据
+    await getCustomer()
+  } catch {}
+}
+
 /** 客户转移 */
-const crmTransferFormRef = ref<InstanceType<typeof CrmTransferForm>>() // 客户转移表单 ref
+const transferFormRef = ref<InstanceType<typeof CrmTransferForm>>() // 客户转移表单 ref
 const transfer = () => {
-  crmTransferFormRef.value?.open('客户转移', customerId.value, CustomerApi.transferCustomer)
+  transferFormRef.value?.open('客户转移', customerId.value, CustomerApi.transferCustomer)
 }
 
 /** 锁定客户 */
@@ -151,11 +169,18 @@ const handleReceive = async () => {
   await getCustomer()
 }
 
+/** 分配客户 */
+const distributeForm = ref<InstanceType<typeof CustomerDistributeForm>>() // 分配客户表单 Ref
+const handleDistributeForm = async () => {
+  distributeForm.value?.open(customerId.value)
+}
+
 /** 客户放入公海 */
 const handlePutPool = async () => {
   await message.confirm(`确定将客户【${customer.value.name}】放入公海吗？`)
   await CustomerApi.putCustomerPool(unref(customerId.value))
   message.success(`客户【${customer.value.name}】放入公海成功`)
+  // 加载
   close()
 }
 
@@ -172,8 +197,15 @@ const getOperateLog = async () => {
   logList.value = data.list
 }
 
+/** 从回款计划创建回款 */
+const receivableListRef = ref<InstanceType<typeof ReceivableList>>() // 回款列表 Ref
+const createReceivable = (planData: any) => {
+  receivableListRef.value?.createReceivable(planData)
+}
+
 const close = () => {
   delView(unref(currentRoute))
+  push({ name: 'CrmCustomer' })
 }
 
 /** 初始化 */
