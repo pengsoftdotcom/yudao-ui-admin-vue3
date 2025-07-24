@@ -41,6 +41,6 @@ const handleChange = (id: number) => {
 }
 
 onMounted(async () => {
-  tenants.value = await TenantApi.getTenantList()
+  tenants.value = await TenantApi.getAuthorizedTenantList()
 })
 </script>

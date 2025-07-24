@@ -46,6 +46,11 @@ export const getTenantList = () => {
   return request.get({ url: '/system/tenant/simple-list' })
 }
 
+// 获取授权的租户信息列表
+export const getAuthorizedTenantList = () => {
+  return request.get({ url: '/system/tenant/authorized-list' })
+}
+
 // 新增租户
 export const createTenant = (data: TenantVO) => {
   return request.post({ url: '/system/tenant/create', data })
