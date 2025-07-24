@@ -16,6 +16,11 @@ export interface PermissionAssignRoleDataScopeReqVO {
   dataScopeDeptIds: number[]
 }
 
+export interface PermissionAssignUserTenantReqVO {
+  userId: number
+  tenantIds: number[]
+}
+
 // 查询角色拥有的菜单权限
 export const getRoleMenuList = async (roleId: number) => {
   return await request.get({ url: '/system/permission/list-role-menus?roleId=' + roleId })
@@ -39,4 +44,14 @@ export const getUserRoleList = async (userId: number) => {
 // 赋予用户角色
 export const assignUserRole = async (data: PermissionAssignUserRoleReqVO) => {
   return await request.post({ url: '/system/permission/assign-user-role', data })
+}
+
+// 查询用户拥有的租户数组
+export const getUserTenantList = async (userId: number) => {
+  return await request.get({ url: '/system/permission/list-user-tenants?userId=' + userId })
+}
+
+// 赋予用户租户
+export const assignUserTenant = async (data: PermissionAssignUserTenantReqVO) => {
+  return await request.post({ url: '/system/permission/assign-user-tenant', data })
 }

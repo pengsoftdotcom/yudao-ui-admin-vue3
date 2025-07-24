@@ -185,6 +185,12 @@
                       >
                         <Icon icon="ep:circle-check" />分配角色
                       </el-dropdown-item>
+                      <el-dropdown-item
+                        command="handleTenant"
+                        v-if="checkPermi(['system:permission:assign-user-tenant'])"
+                      >
+                        <Icon icon="ep:circle-check" />分配租户
+                      </el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
@@ -208,6 +214,8 @@
   <UserImportForm ref="importFormRef" @success="getList" />
   <!-- 分配角色 -->
   <UserAssignRoleForm ref="assignRoleFormRef" @success="getList" />
+  <!-- 分配租户 -->
+  <UserAssignTenantForm ref="assignTenantFormRef" @success="getList" />
 </template>
 <script lang="ts" setup>
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
@@ -219,6 +227,7 @@ import * as UserApi from '@/api/system/user'
 import UserForm from './UserForm.vue'
 import UserImportForm from './UserImportForm.vue'
 import UserAssignRoleForm from './UserAssignRoleForm.vue'
+import UserAssignTenantForm from './UserAssignTenantForm.vue'
 import DeptTree from './DeptTree.vue'
 
 defineOptions({ name: 'SystemUser' })
@@ -332,6 +341,9 @@ const handleCommand = (command: string, row: UserApi.UserVO) => {
     case 'handleRole':
       handleRole(row)
       break
+    case 'handleTenant':
+      handleTenant(row)
+      break
     default:
       break
   }
@@ -387,6 +399,12 @@ const handleResetPwd = async (row: UserApi.UserVO) => {
 const assignRoleFormRef = ref()
 const handleRole = (row: UserApi.UserVO) => {
   assignRoleFormRef.value.open(row)
+}
+
+/** 分配租户 */
+const assignTenantFormRef = ref()
+const handleTenant = (row: UserApi.UserVO) => {
+  assignTenantFormRef.value.open(row)
 }
 
 /** 初始化 */
