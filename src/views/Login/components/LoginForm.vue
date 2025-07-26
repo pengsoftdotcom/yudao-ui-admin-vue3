@@ -47,10 +47,7 @@
           />
         </el-form-item>
       </el-col>
-      <el-col
-        :span="24"
-        class="px-10px mt-[-20px] mb-[-20px]"
-      >
+      <el-col :span="24" class="px-10px mt-[-20px] mb-[-20px]">
         <el-form-item>
           <el-row justify="space-between" style="width: 100%">
             <el-col :span="6">
@@ -132,21 +129,23 @@
           </div>
         </el-form-item>
       </el-col>
-      <el-divider content-position="center">萌新必读</el-divider>
-      <el-col :span="24" class="px-10px">
-        <el-form-item>
-          <div class="w-full flex justify-between">
-            <el-link href="https://doc.iocoder.cn/" target="_blank">📚开发指南</el-link>
-            <el-link href="https://doc.iocoder.cn/video/" target="_blank">🔥视频教程</el-link>
-            <el-link href="https://www.iocoder.cn/Interview/good-collection/" target="_blank">
-              ⚡面试手册
-            </el-link>
-            <el-link href="http://static.yudao.iocoder.cn/mp/Aix9975.jpeg" target="_blank">
-              🤝外包咨询
-            </el-link>
-          </div>
-        </el-form-item>
-      </el-col>
+      <template v-if="getEnable()">
+        <el-divider content-position="center">萌新必读</el-divider>
+        <el-col :span="24" class="px-10px">
+          <el-form-item>
+            <div class="w-full flex justify-between">
+              <el-link href="https://doc.iocoder.cn/" target="_blank">📚开发指南</el-link>
+              <el-link href="https://doc.iocoder.cn/video/" target="_blank">🔥视频教程</el-link>
+              <el-link href="https://www.iocoder.cn/Interview/good-collection/" target="_blank">
+                ⚡面试手册
+              </el-link>
+              <el-link href="http://static.yudao.iocoder.cn/mp/Aix9975.jpeg" target="_blank">
+                🤝外包咨询
+              </el-link>
+            </div>
+          </el-form-item>
+        </el-col>
+      </template>
     </el-row>
   </el-form>
 </template>
@@ -334,6 +333,10 @@ watch(
     immediate: true
   }
 )
+/** 是否开启文档 */
+const getEnable = () => {
+  return import.meta.env.VITE_APP_DOCALERT_ENABLE !== 'false'
+}
 onMounted(() => {
   getLoginFormCache()
   getTenantByWebsite()

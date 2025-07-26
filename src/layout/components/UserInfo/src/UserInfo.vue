@@ -52,6 +52,10 @@ const toProfile = async () => {
 const toDocument = () => {
   window.open('https://doc.iocoder.cn/')
 }
+/** 是否开启文档 */
+const getEnable = () => {
+  return import.meta.env.VITE_APP_DOCALERT_ENABLE !== 'false'
+}
 </script>
 
 <template>
@@ -68,7 +72,7 @@ const toDocument = () => {
           <Icon icon="ep:tools" />
           <div @click="toProfile">{{ t('common.profile') }}</div>
         </ElDropdownItem>
-        <ElDropdownItem>
+        <ElDropdownItem v-if="getEnable()">
           <Icon icon="ep:menu" />
           <div @click="toDocument">{{ t('common.document') }}</div>
         </ElDropdownItem>
